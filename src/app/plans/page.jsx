@@ -46,24 +46,24 @@ export default function PlansPage() {
     setSearchTerm("");
     setLoading(true);
     setError(null);
-    
+
     try {
       // Get all plans first
       const allPlans = await getTreatmentPlans();
       const searchTermLower = planName.toLowerCase();
-      
+
       // Filter results to include either name OR symptom matches
       const matchingPlans = allPlans.filter(plan => {
         const planNameLower = plan.name.toLowerCase();
-        
+
         // Check for name match
         const nameMatch = planNameLower === searchTermLower;
-        
+
         // Check for symptom matches
-        const symptomMatch = plan.symptoms.some(symptom => 
+        const symptomMatch = plan.symptoms.some(symptom =>
           symptom.toLowerCase() === searchTermLower
         );
-        
+
         // Return true if either name OR symptom matches
         return nameMatch || symptomMatch;
       });
@@ -97,15 +97,15 @@ export default function PlansPage() {
         const matchingPlans = searchResults.filter(plan => {
           const planNameLower = plan.name.toLowerCase();
           const searchTermLower = searchTerm.toLowerCase();
-          
+
           // Check for name match
           const nameMatch = planNameLower.includes(searchTermLower);
-          
+
           // Check for symptom matches
-          const symptomMatch = plan.symptoms.some(symptom => 
+          const symptomMatch = plan.symptoms.some(symptom =>
             symptom.toLowerCase().includes(searchTermLower)
           );
-          
+
           return nameMatch || symptomMatch;
         });
 
@@ -142,8 +142,8 @@ export default function PlansPage() {
         <h1 className="text-2xl font-bold mb-6">Treatment Plans</h1>
 
         {/* Search and Controls */}
-        <div className="mb-6 flex gap-4">
-          <div className="flex-1 flex gap-2">
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+          <div className="flex gap-2">
             <Input
               type="search"
               placeholder="Search plans..."
@@ -165,6 +165,7 @@ export default function PlansPage() {
           <Button
             variant={showAllPlans ? "default" : "outline"}
             onClick={handleShowAllPlans}
+            className="w-full sm:w-auto"
           >
             <ListOrdered className="w-4 h-4 mr-2" />
             {showAllPlans ? "Show Common Plans" : "Show All Plans"}
@@ -187,13 +188,13 @@ export default function PlansPage() {
             {!showAllPlans && (
               <div className="mb-6">
                 <h2 className="text-lg font-semibold mb-3">Common Plans</h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 max-w-full">
                   {commonPlans.map((plan) => (
                     <Button
                       key={plan}
                       variant={selectedPlan === plan ? "default" : "outline"}
                       size="sm"
-                      className="rounded-full"
+                      className="rounded-full whitespace-nowrap"
                       onClick={() => handlePlanClick(plan)}
                     >
                       {plan}
