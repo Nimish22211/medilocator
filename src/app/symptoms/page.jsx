@@ -158,36 +158,56 @@ export default function SymptomsPage() {
             </div>
           ) : results.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2">
-              {results.map((medicine) => (
-                <div
-                  key={medicine.id}
-                  className="p-4 bg-white rounded-lg shadow-sm border"
-                >
-                  <h3 className="font-semibold text-lg mb-2">{medicine.medicine_name}</h3>
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-sm font-medium mb-1">Location:</p>
-                      <p className="text-sm">
-                        Almirah {medicine.location.almirah}, Row {medicine.location.row}, Box {medicine.location.box}
+              {!loading && results.map((medicine) => (
+                <div key={medicine.id} className="p-4 bg-white rounded-lg shadow">
+                  <h3 className="font-semibold text-lg">{medicine.medicine_name}</h3>
+                  <div className="mt-2 space-y-3">
+                    {/* Location with subtle background */}
+                    <div className="p-3 bg-primary/5 rounded-md">
+                      <p className="text-base font-medium text-primary mb-1">Location</p>
+                      <p className="text-base">
+                        Almirah {medicine.location.almirah} → Row {medicine.location.row} → Box {medicine.location.box}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium mb-1">Type:</p>
-                      <p className="text-sm capitalize">{medicine.type}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium mb-1">Symptoms:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {medicine.symptoms.map((symptom) => (
-                          <span
-                            key={symptom}
-                            className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
-                          >
-                            {symptom}
-                          </span>
-                        ))}
+
+                    {/* Type and Price in a row */}
+                    <div className="flex flex-wrap gap-4">
+                      <div>
+                        <p className="text-base font-medium mb-1">Type</p>
+                        <p className="text-base capitalize">{medicine.type}</p>
                       </div>
+                      {medicine.price && (
+                        <div>
+                          <p className="text-base font-medium mb-1">Price</p>
+                          <p className="text-base font-semibold text-primary">₹{parseFloat(medicine.price).toFixed(2)}</p>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Notes if available */}
+                    {medicine.notes && (
+                      <div>
+                        <p className="text-base font-medium mb-1">Notes</p>
+                        <p className="text-base text-muted-foreground">{medicine.notes}</p>
+                      </div>
+                    )}
+
+                    {/* Symptoms if available */}
+                    {medicine.symptoms && medicine.symptoms.length > 0 && (
+                      <div>
+                        <p className="text-base font-medium mb-2">Symptoms</p>
+                        <div className="flex flex-wrap gap-2">
+                          {medicine.symptoms.map((symptom) => (
+                            <span
+                              key={symptom}
+                              className="px-3 py-1.5 bg-primary/10 text-primary text-sm rounded-full"
+                            >
+                              {symptom}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

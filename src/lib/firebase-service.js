@@ -1,10 +1,10 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  query, 
-  where, 
-  doc, 
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
   getDoc,
   updateDoc,
   deleteDoc,
@@ -15,8 +15,8 @@ import { db } from './firebase';
 // Medicine Collection
 export async function addMedicine(medicineData) {
   try {
-    const { name, symptoms, almirah, row, box, type } = medicineData;
-    
+    const { name, symptoms, almirah, row, box, type, price } = medicineData;
+
     if (!name || !type || !almirah || !row || !box) {
       throw new Error("Missing required fields");
     }
@@ -31,6 +31,7 @@ export async function addMedicine(medicineData) {
         box: box.trim()
       },
       type: type.trim(),
+      price: parseFloat(price) || 0,
       createdAt: serverTimestamp()
     };
 
@@ -59,7 +60,7 @@ export const searchMedicines = async (searchTerm) => {
   try {
     const medicinesRef = collection(db, 'medicines');
     const normalizedSearchTerm = searchTerm.toLowerCase().trim();
-    
+
     // If search term is empty, return empty array
     if (!normalizedSearchTerm) {
       return [];
@@ -71,7 +72,7 @@ export const searchMedicines = async (searchTerm) => {
       where('medicine_name', '>=', normalizedSearchTerm),
       where('medicine_name', '<=', normalizedSearchTerm + '\uf8ff')
     );
-    
+
     const querySnapshot = await getDocs(q);
     const results = querySnapshot.docs.map(doc => ({
       id: doc.id,
@@ -82,19 +83,19 @@ export const searchMedicines = async (searchTerm) => {
     return results.sort((a, b) => {
       const aName = a.medicine_name.toLowerCase();
       const bName = b.medicine_name.toLowerCase();
-      
+
       // Exact match gets highest priority
       if (aName === normalizedSearchTerm && bName !== normalizedSearchTerm) return -1;
       if (bName === normalizedSearchTerm && aName !== normalizedSearchTerm) return 1;
-      
+
       // Starts with search term gets second priority
       if (aName.startsWith(normalizedSearchTerm) && !bName.startsWith(normalizedSearchTerm)) return -1;
       if (bName.startsWith(normalizedSearchTerm) && !aName.startsWith(normalizedSearchTerm)) return 1;
-      
+
       // Contains search term gets third priority
       if (aName.includes(normalizedSearchTerm) && !bName.includes(normalizedSearchTerm)) return -1;
       if (bName.includes(normalizedSearchTerm) && !aName.includes(normalizedSearchTerm)) return 1;
-      
+
       // Alphabetical order for same priority
       return aName.localeCompare(bName);
     });
@@ -108,7 +109,7 @@ export const searchMedicines = async (searchTerm) => {
 export const searchBySymptoms = async (symptoms) => {
   try {
     const medicinesRef = collection(db, 'medicines');
-    
+
     // If only one symptom, use array-contains for better performance
     if (symptoms.length === 1) {
       const q = query(
@@ -121,7 +122,7 @@ export const searchBySymptoms = async (symptoms) => {
         ...doc.data()
       }));
     }
-    
+
     // For multiple symptoms, use array-contains-any
     const q = query(
       medicinesRef,
@@ -135,10 +136,10 @@ export const searchBySymptoms = async (symptoms) => {
 
     // Sort results by number of matching symptoms (most matches first)
     return results.sort((a, b) => {
-      const aMatches = a.symptoms.filter(s => 
+      const aMatches = a.symptoms.filter(s =>
         symptoms.includes(s.toLowerCase())
       ).length;
-      const bMatches = b.symptoms.filter(s => 
+      const bMatches = b.symptoms.filter(s =>
         symptoms.includes(s.toLowerCase())
       ).length;
       return bMatches - aMatches;
@@ -182,6 +183,7 @@ export const updateMedicine = async (id, medicineData) => {
         box: medicineData.location.box
       },
       type: medicineData.type,
+      price: parseFloat(medicineData.price) || 0,
       updatedAt: new Date().toISOString()
     });
     return { id, ...medicineData };
@@ -206,13 +208,39 @@ export const deleteMedicine = async (id) => {
 // Treatment Plans Collection
 export const addTreatmentPlan = async (planData) => {
   try {
-    const docRef = await addDoc(collection(db, 'treatmentPlans'), {
-      ...planData,
-      createdAt: new Date().toISOString()
-    });
-    return { id: docRef.id, ...planData };
+    const { name, symptoms, medicines, total_price } = planData;
+
+    if (!name || !medicines || medicines.length === 0) {
+      throw new Error("Missing required fields: name and medicines are required");
+    }
+
+    console.log('Adding treatment plan to Firebase:', planData); // Debug log
+
+    const planRef = collection(db, "treatmentPlans");
+    const newPlan = {
+      name: name.trim(),
+      symptoms: symptoms || [],
+      medicines: medicines.map(medicine => ({
+        id: medicine.id,
+        name: medicine.name,
+        type: medicine.type,
+        notes: medicine.notes || "",
+        price: parseFloat(medicine.price) || 0,
+        location: medicine.location
+      })),
+      total_price: parseFloat(total_price) || 0,
+      created_at: serverTimestamp()
+    };
+
+    console.log('Processed plan data:', newPlan); // Debug log
+
+    const docRef = await addDoc(planRef, newPlan);
+    const addedPlan = { id: docRef.id, ...newPlan };
+
+    console.log('Plan added successfully:', addedPlan); // Debug log
+    return addedPlan;
   } catch (error) {
-    console.error('Error adding treatment plan:', error);
+    console.error("Error adding treatment plan:", error);
     throw error;
   }
 };
@@ -220,6 +248,7 @@ export const addTreatmentPlan = async (planData) => {
 export const getTreatmentPlans = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'treatmentPlans'));
+    console.log('Treatment plans:', querySnapshot.docs.map(doc => doc.data()));
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
