@@ -13,7 +13,8 @@ export default function AddMedicinePage() {
     almirah: "",
     row: "",
     box: "",
-    type: ""
+    type: "",
+    price: ""
   });
   const [newSymptom, setNewSymptom] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,7 +53,8 @@ export default function AddMedicinePage() {
         almirah: "",
         row: "",
         box: "",
-        type: ""
+        type: "",
+        price: ""
       });
     } catch (err) {
       setError("Failed to add medicine. Please try again.");
@@ -198,6 +200,23 @@ export default function AddMedicinePage() {
               <option value="capsule">Capsule</option>
               <option value="injection">Injection</option>
             </select>
+          </div>
+
+          {/* Price */}
+          <div>
+            <label htmlFor="price" className="block text-sm font-medium mb-2">
+              Price
+            </label>
+            <Input
+              id="price"
+              type="number"
+              placeholder="Enter medicine price"
+              min="0"
+              step="0.01"
+              required
+              value={formData.price}
+              onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+            />
           </div>
 
           {/* Submit Button */}

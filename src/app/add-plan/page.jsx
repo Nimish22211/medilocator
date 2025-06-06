@@ -13,6 +13,7 @@ export default function AddPlanPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [totalPrice, setTotalPrice] = useState("");
 
   // Medicine search states
   const [searchTerm, setSearchTerm] = useState("");
@@ -113,10 +114,10 @@ export default function AddPlanPage() {
       };
 
       const addedMedicine = await addMedicine(newMedicine);
-      
+
       // Add the medicine to the local state with the Firebase ID
       setMedicines([...medicines, addedMedicine]);
-      
+
       // Reset the form
       setCustomMedicine({
         medicine_name: "",
@@ -139,36 +140,43 @@ export default function AddPlanPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!planName.trim() || medicines.length === 0) return;
+    if (!planName.trim() || medicines.length === 0) {
+      setError("Please provide a plan name and at least one medicine.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
     try {
       const planData = {
-        name: planName,
+        name: planName.trim(),
         symptoms: symptoms.filter(s => s.trim() !== ""),
         medicines: medicines.map(m => ({
-          id: m.id, // Include the medicine ID
+          id: m.id,
           name: m.medicine_name,
           type: m.type,
           notes: m.notes,
+          price: parseFloat(m.price) || 0,
           location: m.location
         })),
+        total_price: parseFloat(totalPrice) || 0,
         created_at: new Date().toISOString()
       };
 
-      await addTreatmentPlan(planData);
+      console.log('Submitting plan data:', planData); // Debug log
+      const result = await addTreatmentPlan(planData);
+      console.log('Plan added successfully:', result); // Debug log
+
       setSuccess(true);
-      
-      // Reset form
       setPlanName("");
       setSymptoms([""]);
       setMedicines([]);
       setSearchTerm("");
       setSearchResults([]);
+      setTotalPrice("");
     } catch (err) {
-      setError("Failed to add treatment plan. Please try again.");
-      console.error(err);
+      console.error('Error adding treatment plan:', err);
+      setError(err.message || "Failed to add treatment plan. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -187,6 +195,20 @@ export default function AddPlanPage() {
               value={planName}
               onChange={(e) => setPlanName(e.target.value)}
               placeholder="Enter plan name"
+              required
+            />
+          </div>
+
+          {/* Total Price */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Total Price</label>
+            <Input
+              type="number"
+              value={totalPrice}
+              onChange={(e) => setTotalPrice(e.target.value)}
+              placeholder="Enter total price"
+              min="0"
+              step="0.01"
               required
             />
           </div>
@@ -229,7 +251,7 @@ export default function AddPlanPage() {
           {/* Medicines */}
           <div>
             <label className="block text-sm font-medium mb-2">Medicines</label>
-            
+
             {/* Medicine Search */}
             <div className="mb-4">
               <div className="flex gap-2">
