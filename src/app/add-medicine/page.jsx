@@ -8,11 +8,11 @@ import { addMedicine } from "@/lib/firebase-service";
 
 export default function AddMedicinePage() {
   const [formData, setFormData] = useState({
-    name: "",
+    medicine_name: "",
     symptoms: [],
     almirah: "",
     row: "",
-    box: "",
+    door: "",
     type: "",
     price: ""
   });
@@ -48,11 +48,11 @@ export default function AddMedicinePage() {
       await addMedicine(formData);
       setSuccess(true);
       setFormData({
-        name: "",
+        medicine_name: "",
         symptoms: [],
         almirah: "",
         row: "",
-        box: "",
+        door: "",
         type: "",
         price: ""
       });
@@ -84,16 +84,16 @@ export default function AddMedicinePage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Medicine Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-2">
+            <label htmlFor="medicine_name" className="block text-sm font-medium mb-2">
               Medicine Name
             </label>
             <Input
-              id="name"
+              id="medicine_name"
               type="text"
               placeholder="Enter medicine name"
               required
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              value={formData.medicine_name}
+              onChange={(e) => setFormData(prev => ({ ...prev, medicine_name: e.target.value }))}
             />
           </div>
 
@@ -168,16 +168,16 @@ export default function AddMedicinePage() {
               />
             </div>
             <div>
-              <label htmlFor="box" className="block text-sm font-medium mb-2">
-                Box
+              <label htmlFor="door" className="block text-sm font-medium mb-2">
+                Door
               </label>
               <Input
-                id="box"
+                id="door"
                 type="text"
                 placeholder="A, B, C..."
                 required
-                value={formData.box}
-                onChange={(e) => setFormData(prev => ({ ...prev, box: e.target.value }))}
+                value={formData.door}
+                onChange={(e) => setFormData(prev => ({ ...prev, door: e.target.value }))}
               />
             </div>
           </div>
