@@ -65,7 +65,7 @@ export default function AddPlanPage() {
 
   const handleSymptomChange = (index, value) => {
     const newSymptoms = [...symptoms];
-    newSymptoms[index] = value;
+    newSymptoms[index] = value.toLowerCase();
     setSymptoms(newSymptoms);
   };
 

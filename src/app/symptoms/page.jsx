@@ -40,7 +40,7 @@ export default function SymptomsPage() {
       setLoading(true);
       setError(null);
       try {
-        const searchResults = await searchBySymptoms([searchTerm.trim()]);
+        const searchResults = await searchBySymptoms([searchTerm.trim().toLowerCase()]);
         setResults(searchResults);
       } catch (err) {
         setError("Failed to search medicines. Please try again.");
@@ -65,7 +65,7 @@ export default function SymptomsPage() {
       setLoading(true);
       setError(null);
       try {
-        const searchResults = await searchBySymptoms(selectedSymptoms);
+        const searchResults = await searchBySymptoms(selectedSymptoms.map(s => s.toLowerCase()));
         setResults(searchResults);
       } catch (err) {
         setError("Failed to search medicines. Please try again.");

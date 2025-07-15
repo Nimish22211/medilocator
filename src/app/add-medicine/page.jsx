@@ -22,10 +22,11 @@ export default function AddMedicinePage() {
   const [success, setSuccess] = useState(false);
 
   const handleAddSymptom = () => {
-    if (newSymptom.trim() && !formData.symptoms.includes(newSymptom.trim())) {
+    const symptomValue = newSymptom.trim().toLowerCase();
+    if (symptomValue && !formData.symptoms.includes(symptomValue)) {
       setFormData(prev => ({
         ...prev,
-        symptoms: [...prev.symptoms, newSymptom.trim()]
+        symptoms: [...prev.symptoms, symptomValue]
       }));
       setNewSymptom("");
     }
