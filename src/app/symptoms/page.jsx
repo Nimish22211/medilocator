@@ -17,6 +17,11 @@ const commonSymptoms = [
   "Allergy"
 ];
 
+function capitalizeFirstLetter(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function SymptomsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -160,13 +165,13 @@ export default function SymptomsPage() {
             <div className="grid gap-6 md:grid-cols-2">
               {!loading && results.map((medicine) => (
                 <div key={medicine.id} className="p-4 bg-white rounded-lg shadow">
-                  <h3 className="font-semibold text-lg">{medicine.medicine_name}</h3>
+                  <h3 className="font-semibold text-lg">{capitalizeFirstLetter(medicine.medicine_name)}</h3>
                   <div className="mt-2 space-y-3">
                     {/* Location with subtle background */}
                     <div className="p-3 bg-primary/5 rounded-md">
                       <p className="text-base font-medium text-primary mb-1">Location</p>
                       <p className="text-base">
-                        Almirah {medicine.location.almirah} → Row {medicine.location.row} → Box {medicine.location.box}
+                        Almirah {medicine.location.almirah} → Door {medicine.location.door} → Row {medicine.location.row}
                       </p>
                     </div>
 

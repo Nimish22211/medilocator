@@ -8,6 +8,11 @@ import { searchMedicines } from "@/lib/firebase-service";
 
 const alphabet = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
+function capitalizeFirstLetter(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLetter, setSelectedLetter] = useState(null);
@@ -50,8 +55,13 @@ export default function SearchPage() {
     setLoading(true);
     setError(null);
     try {
-      const searchResults = await searchMedicines(letter);
-      setResults(searchResults);
+      // Pass lowercase letter to searchMedicines for broader match
+      const searchResults = await searchMedicines(letter.toLowerCase());
+      // Filter results to only those starting with the selected letter (case-insensitive)
+      const filteredResults = searchResults.filter(med =>
+        med.medicine_name && med.medicine_name[0]?.toLowerCase() === letter.toLowerCase()
+      );
+      setResults(filteredResults);
     } catch (err) {
       setError("Failed to search medicines. Please try again.");
       console.error(err);
@@ -120,13 +130,13 @@ export default function SearchPage() {
           )}
           {!loading && results.map((medicine) => (
             <div key={medicine.id} className="p-4 bg-white rounded-lg shadow">
-              <h3 className="font-semibold text-lg">{medicine.medicine_name}</h3>
+              <h3 className="font-semibold text-lg">{capitalizeFirstLetter(medicine.medicine_name)}</h3>
               <div className="mt-2 space-y-3">
                 {/* Location with subtle background */}
                 <div className="p-3 bg-primary/5 rounded-md">
                   <p className="text-base font-medium text-primary mb-1">Location</p>
                   <p className="text-base">
-                    Almirah {medicine.location.almirah} → Row {medicine.location.row} → Box {medicine.location.box}
+                    Almirah {medicine.location.almirah} → Door {medicine.location.door} → Row {medicine.location.row}
                   </p>
                 </div>
 

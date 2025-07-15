@@ -16,6 +16,11 @@ const commonPlans = [
   "Allergy"
 ];
 
+function capitalizeFirstLetter(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function PlansPage() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -242,7 +247,7 @@ export default function PlansPage() {
                           <ul className="space-y-1">
                             {plan.medicines.map((medicine) => (
                               <li key={medicine.id} className="text-sm">
-                                {medicine.name} ({medicine.type})
+                                {capitalizeFirstLetter(medicine.medicine_name)} ({medicine.type})
                                 {medicine.price && (
                                   <span className="text-muted-foreground">
                                     {" "}- ₹{parseFloat(medicine.price).toFixed(2)}
