@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Search, Plus, X } from "lucide-react";
 import { addTreatmentPlan, searchMedicines, addMedicine } from "@/lib/firebase-service";
 
+// Add a helper function at the top (after imports)
+function capitalizeFirstLetter(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function AddPlanPage() {
   const [planName, setPlanName] = useState("");
   const [symptoms, setSymptoms] = useState([""]);
@@ -14,6 +20,7 @@ export default function AddPlanPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [totalPrice, setTotalPrice] = useState("");
+  const [planNotes, setPlanNotes] = useState("");
 
   // Medicine search states
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,8 +33,8 @@ export default function AddPlanPage() {
     notes: "",
     location: {
       almirah: "",
-      row: "",
-      box: ""
+      door: "",
+      row: ""
     }
   });
 
@@ -109,7 +116,9 @@ export default function AddPlanPage() {
         medicine_name: customMedicine.medicine_name,
         type: customMedicine.type,
         notes: customMedicine.notes,
-        location: customMedicine.location,
+        almirah: customMedicine.location.almirah,
+        door: customMedicine.location.door,
+        row: customMedicine.location.row,
         symptoms: symptoms.filter(s => s.trim() !== "")
       };
 
@@ -125,8 +134,8 @@ export default function AddPlanPage() {
         notes: "",
         location: {
           almirah: "",
-          row: "",
-          box: ""
+          door: "",
+          row: ""
         }
       });
       setShowCustomMedicine(false);
@@ -150,10 +159,11 @@ export default function AddPlanPage() {
     try {
       const planData = {
         name: planName.trim(),
+        notes: planNotes,
         symptoms: symptoms.filter(s => s.trim() !== ""),
         medicines: medicines.map(m => ({
           id: m.id,
-          name: m.medicine_name,
+          medicine_name: m.medicine_name,
           type: m.type,
           notes: m.notes,
           price: parseFloat(m.price) || 0,
@@ -169,6 +179,7 @@ export default function AddPlanPage() {
 
       setSuccess(true);
       setPlanName("");
+      setPlanNotes("");
       setSymptoms([""]);
       setMedicines([]);
       setSearchTerm("");
@@ -196,6 +207,16 @@ export default function AddPlanPage() {
               onChange={(e) => setPlanName(e.target.value)}
               placeholder="Enter plan name"
               required
+            />
+          </div>
+
+          {/* Plan Notes */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Plan Notes</label>
+            <Input
+              value={planNotes}
+              onChange={(e) => setPlanNotes(e.target.value)}
+              placeholder="Enter notes for this plan (optional)"
             />
           </div>
 
@@ -281,7 +302,7 @@ export default function AddPlanPage() {
                       className="p-2 bg-white rounded-lg shadow-sm border flex justify-between items-center"
                     >
                       <div>
-                        <p className="font-medium">{medicine.medicine_name}</p>
+                        <p className="font-medium">{capitalizeFirstLetter(medicine.medicine_name)}</p>
                         <p className="text-sm text-muted-foreground">
                           Type: {medicine.type}
                         </p>
@@ -326,14 +347,14 @@ export default function AddPlanPage() {
                         onChange={(e) => handleCustomMedicineChange('location.almirah', e.target.value)}
                       />
                       <Input
+                        placeholder="Door"
+                        value={customMedicine.location.door}
+                        onChange={(e) => handleCustomMedicineChange('location.door', e.target.value)}
+                      />
+                      <Input
                         placeholder="Row"
                         value={customMedicine.location.row}
                         onChange={(e) => handleCustomMedicineChange('location.row', e.target.value)}
-                      />
-                      <Input
-                        placeholder="Box"
-                        value={customMedicine.location.box}
-                        onChange={(e) => handleCustomMedicineChange('location.box', e.target.value)}
                       />
                     </div>
                     <div className="flex gap-2">
@@ -365,7 +386,7 @@ export default function AddPlanPage() {
                   className="p-3 bg-white rounded-lg shadow-sm border flex justify-between items-center"
                 >
                   <div>
-                    <p className="font-medium">{medicine.medicine_name}</p>
+                    <p className="font-medium">{capitalizeFirstLetter(medicine.medicine_name)}</p>
                     <p className="text-sm text-muted-foreground">
                       Type: {medicine.type}
                     </p>

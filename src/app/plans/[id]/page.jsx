@@ -9,6 +9,11 @@ import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+function capitalizeFirstLetter(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function PlanDetails() {
     const { id } = useParams();
     const [plan, setPlan] = useState(null);
@@ -86,6 +91,11 @@ export default function PlanDetails() {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                    {plan.notes && (
+                        <div className="mt-2 text-base text-muted-foreground">
+                            <span className="font-medium">Notes: </span>{plan.notes}
+                        </div>
+                    )}
                     <div className="flex items-center gap-2 text-muted-foreground">
                         {/* <DollarSign className="h-4 w-4" /> */}
                         <span className="text-lg font-semibold text-primary">
@@ -98,14 +108,14 @@ export default function PlanDetails() {
                         {/* Medicines List */}
                         {plan.medicines.map((medicine, index) => (
                             <div key={index} className="p-4 bg-muted/50 rounded-lg">
-                                <h3 className="font-semibold text-lg mb-3">{medicine.name}</h3>
+                                <h3 className="font-semibold text-lg mb-3">{capitalizeFirstLetter(medicine.medicine_name)}</h3>
                                 <div className="space-y-2">
                                     {medicine.location && (
                                         <div className="p-3 bg-primary/5 rounded-md">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <span className="font-medium text-primary">Location:</span>
                                                 <span className="text-primary">
-                                                    Almirah {medicine.location.almirah} → Row {medicine.location.row} → Box {medicine.location.box}
+                                                    Almirah {medicine.location.almirah} → Door {medicine.location.door} → Row {medicine.location.row}
                                                 </span>
                                             </div>
                                         </div>
