@@ -15,26 +15,27 @@ import { db } from './firebase';
 // Medicine Collection
 export async function addMedicine(medicineData) {
   try {
-    const { name, symptoms, almirah, row, box, type, price } = medicineData;
+    const { medicine_name, symptoms, almirah, row, door, type, price } = medicineData;
 
-    if (!name || !type || !almirah || !row || !box) {
+    if (!medicine_name || !type || !almirah || !row || !door) {
       throw new Error("Missing required fields");
     }
 
     const medicineRef = collection(db, "medicines");
+    console.log(medicine_name);
     const newMedicine = {
-      medicine_name: name.trim(),
+      medicine_name: medicine_name.trim().toLowerCase(),
       symptoms: symptoms || [],
       location: {
         almirah: almirah.trim(),
-        row: row.trim(),
-        box: box.trim()
+        door: door.trim(),
+        row: row.trim()
       },
       type: type.trim(),
       price: parseFloat(price) || 0,
       createdAt: serverTimestamp()
     };
-
+    console.log(newMedicine);
     const docRef = await addDoc(medicineRef, newMedicine);
     return { id: docRef.id, ...newMedicine };
   } catch (error) {
@@ -174,13 +175,13 @@ export const updateMedicine = async (id, medicineData) => {
   try {
     const medicineRef = doc(db, 'medicines', id);
     await updateDoc(medicineRef, {
-      medicine_name: medicineData.medicine_name,
+      medicine_name: medicineData.medicine_name.trim().toLowerCase(),
       symptoms: medicineData.symptoms || [],
       notes: medicineData.notes,
       location: {
         almirah: medicineData.location.almirah,
-        row: medicineData.location.row,
-        box: medicineData.location.box
+        door: medicineData.location.door,
+        row: medicineData.location.row
       },
       type: medicineData.type,
       price: parseFloat(medicineData.price) || 0,
@@ -219,14 +220,15 @@ export const addTreatmentPlan = async (planData) => {
     const planRef = collection(db, "treatmentPlans");
     const newPlan = {
       name: name.trim(),
+      notes: planData.notes || '',
       symptoms: symptoms || [],
       medicines: medicines.map(medicine => ({
         id: medicine.id,
-        name: medicine.name,
-        type: medicine.type,
-        notes: medicine.notes || "",
-        price: parseFloat(medicine.price) || 0,
-        location: medicine.location
+        medicine_name: medicine.medicine_name || '',
+        type: medicine.type || '',
+        notes: medicine.notes || '',
+        price: medicine.price !== undefined ? parseFloat(medicine.price) || 0 : 0,
+        location: medicine.location || { almirah: '', door: '', row: '' }
       })),
       total_price: parseFloat(total_price) || 0,
       created_at: serverTimestamp()
